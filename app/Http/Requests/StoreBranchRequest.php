@@ -30,6 +30,8 @@ class StoreBranchRequest extends FormRequest
             'branch_description' => ['nullable', 'string'],
             'branch_location' => ['nullable', 'string', 'max:255'],
         ];
+
+        
     }
 
     /**

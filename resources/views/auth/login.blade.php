@@ -78,43 +78,57 @@
                                                 <i class="ti ti-x" data-bs-dismiss="alert"></i>
                                             </div>
                                         @endif
-                                        <form method="POST" {{ route('login') }} class="row g-3 app-form needs-validation" novalidate
-                                                onsubmit="return validateForm(event)">
-                                                @csrf
+                                        <form method="POST" {{ route('login') }}
+                                            class="row g-3 app-form needs-validation" novalidate
+                                            onsubmit="return validateForm(event)">
+                                            @csrf
                                             <div class="col-12">
                                                 <label for="inputCode" class="form-label">Code structure</label>
-                                                <input type="text" class="form-control shadow-sm" id="inputCode"
-                                                    placeholder="Entrez votre code structure" name="code" required>
+                                                {{-- Le name 'codeEntreprise' est bon --}}
+                                                <input type="text" class="form-control shadow-sm @error('codeEntreprise') is-invalid @enderror" id="inputCode"
+                                                    placeholder="Entrez votre code structure" name="codeEntreprise" value="{{ old('codeEntreprise') }}" required>
+                                                @error('codeEntreprise')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                             <div class="col-12">
                                                 <label for="inputidentifiant" class="form-label">Identifiant</label>
-                                                <input type="text" class="form-control shadow-sm" id="inputidentifiant"
-                                                    placeholder="Entrez votre identifiant" name="email" required>
+                                                {{-- Renommé 'identifiant' pour la clarté --}}
+                                                <input type="text"
+                                                    class="form-control shadow-sm @error('identifiant') is-invalid @enderror"
+                                                    id="inputidentifiant" placeholder="Nom d'utilisateur ou e-mail"
+                                                    name="identifiant" value="{{ old('identifiant') }}" required>
+                                                
                                             </div>
                                             <div class="col-12">
                                                 <label for="inputChoosePassword" class="form-label">Mot de passe</label>
                                                 <div class="input-group" id="show_hide_password">
-                                                    <input type="password" class="form-control border-end-0  shadow-sm"
-                                                        id="inputChoosePassword" placeholder="Votre mot de passe" name="password" required> <a
-                                                        href="javascript:;" class="input-group-text bg-transparent shadow-sm"><i
+                                                    <input type="password"
+                                                        class="form-control shadow-sm @error('password') is-invalid @enderror"
+                                                        id="inputChoosePassword" placeholder="Votre mot de passe"
+                                                        name="password" required>
+                                                    <a href="javascript:;"
+                                                        class="input-group-text bg-transparent shadow-sm"><i
                                                             class="bx bx-hide"></i></a>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox"
+                                                    <input class="form-check-input" type="checkbox" name="remember"
                                                         id="flexSwitchCheckChecked">
                                                     <label class="form-check-label" for="flexSwitchCheckChecked">Se
                                                         souvenir de moi</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-6 text-end"> <a
-                                                    href="authentication-forgot-password.html">Mot de passe oublié ?</a>
+                                                    href="authentication-forgot-password.html">Mot de passe oublié
+                                                    ?</a>
                                             </div>
                                             <div class="col-12">
                                                 <div class="d-grid">
-                                                    <button type="submit" class="btn btn-primary shadow-sm" id="submitBtn"
-                                                        onclick="handleSubmit(event)">Se connecter</button>
+                                                    <button type="submit" class="btn btn-primary shadow-sm"
+                                                        id="submitBtn" onclick="handleSubmit(event)">Se
+                                                        connecter</button>
                                                     <button type="button" id="btnLoading"
                                                         class="btn btn-dark w-100 fw-bold d-none" disabled>
                                                         <span class="spinner-border spinner-border-sm me-2"

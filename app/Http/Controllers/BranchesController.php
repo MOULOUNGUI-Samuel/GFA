@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Structure;
 use App\Http\Requests\StoreBranchRequest; // Nous allons créer ce fichier
+use App\Models\Branche;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
@@ -17,7 +18,8 @@ class BranchesController extends Controller
     public function index()
     {
         //
-        return view('components.branches');
+        $branches=Branche::where('structure_id',session('structure_id'))->get();
+        return view('components.branches',compact('branches'));
     }
 
     /**
@@ -69,16 +71,32 @@ public function store(StoreBranchRequest $request, Structure $structure)
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Branche $branche)
     {
-        //
+        $validated = $request->validate([
+            'branch_name' => ['required','string','max:255'],
+            'branch_description' => ['nullable','string','max:500'],
+        ]);
+
+        $branche->update([
+            'nom'         => $validated['branch_name'],
+            'description' => $validated['branch_description'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'La branche a été mise à jour avec succès.',
+            'branche' => $branche->fresh(),
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Branche $branche)
     {
-        //
+        $branche->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'La branche a été supprimée avec succès.',
+        ]);
     }
 }

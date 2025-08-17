@@ -584,20 +584,20 @@
                                                                             onclick="stepper1.previous()"><i
                                                                                 class='bx bx-left-arrow-alt me-2'></i>Précédent</button>
                                                                         <!-- Le bouton de soumission final -->
-                                                                            <button type="submit" class="btn btn-primary px-4 shadow-sm"
-                                                                        id="submitBtn"
-                                                                        onclick="stepper1.next()"><i
-                                                                            class='bx bx-check-circle ms-2'></i>
-                                                                        Valider l'inscription</button>
-                                                                    <button type="button" id="btnLoading"
-                                                                        class="btn btn-dark fw-bold d-none"
-                                                                        disabled>
-                                                                        <span
-                                                                            class="spinner-border spinner-border-sm me-2"
-                                                                            role="status"
-                                                                            aria-hidden="true"></span>
-                                                                        Inscription en cours...
-                                                                    </button>
+                                                                        <button type="submit"
+                                                                            class="btn btn-primary px-4 shadow-sm"
+                                                                            data-loader-target="btnLoading"><i
+                                                                                class='bx bx-check-circle ms-2'></i>
+                                                                            Valider l'inscription</button>
+                                                                        <button type="button" id="btnLoading"
+                                                                            class="btn btn-dark fw-bold"
+                                                                            style="display: none;" disabled>
+                                                                            <span
+                                                                                class="spinner-border spinner-border-sm me-2"
+                                                                                role="status"
+                                                                                aria-hidden="true"></span>
+                                                                            Inscription en cours...
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -627,76 +627,78 @@
         </div>
     </div>
     </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    // --- GESTION DE LA VISIBILITÉ DU MOT DE PASSE ---
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- GESTION DE LA VISIBILITÉ DU MOT DE PASSE ---
 
-    const passwordInput = document.getElementById('InputPassword');
-    const togglePasswordBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('InputPassword');
+            const togglePasswordBtn = document.getElementById('togglePassword');
 
-    const confirmPasswordInput = document.getElementById('InputConfirmPassword');
-    const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+            const confirmPasswordInput = document.getElementById('InputConfirmPassword');
+            const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
 
-    function toggleVisibility(input, button) {
-        const icon = button.querySelector('i');
-        // Basculer le type de l'input
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('bi-eye');
-            icon.classList.add('bi-eye-slash');
-        }
-    }
+            function toggleVisibility(input, button) {
+                const icon = button.querySelector('i');
+                // Basculer le type de l'input
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            }
 
-    if(togglePasswordBtn) {
-        togglePasswordBtn.addEventListener('click', () => toggleVisibility(passwordInput, togglePasswordBtn));
-    }
-    if(toggleConfirmPasswordBtn) {
-        toggleConfirmPasswordBtn.addEventListener('click', () => toggleVisibility(confirmPasswordInput, toggleConfirmPasswordBtn));
-    }
+            if (togglePasswordBtn) {
+                togglePasswordBtn.addEventListener('click', () => toggleVisibility(passwordInput,
+                    togglePasswordBtn));
+            }
+            if (toggleConfirmPasswordBtn) {
+                toggleConfirmPasswordBtn.addEventListener('click', () => toggleVisibility(confirmPasswordInput,
+                    toggleConfirmPasswordBtn));
+            }
 
 
-    // --- GESTION DE LA CORRESPONDANCE DES MOTS DE PASSE ---
-    
-    const feedbackDiv = document.getElementById('password-feedback');
+            // --- GESTION DE LA CORRESPONDANCE DES MOTS DE PASSE ---
 
-    function checkPasswordMatch() {
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
+            const feedbackDiv = document.getElementById('password-feedback');
 
-        // Si le champ de confirmation est vide, on ne montre rien
-        if (confirmPassword === '') {
-            confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
-            feedbackDiv.innerHTML = '';
-            return;
-        }
+            function checkPasswordMatch() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
 
-        // Si les mots de passe correspondent
-        if (password === confirmPassword) {
-            confirmPasswordInput.classList.remove('is-invalid');
-            confirmPasswordInput.classList.add('is-valid');
-            // Utilise les classes de feedback de Bootstrap pour le style
-            feedbackDiv.className = 'valid-feedback d-block'; 
-            feedbackDiv.textContent = 'Les mots de passe correspondent.';
-        } else {
-            // S'ils ne correspondent pas
-            confirmPasswordInput.classList.remove('is-valid');
-            confirmPasswordInput.classList.add('is-invalid');
-            feedbackDiv.className = 'invalid-feedback d-block';
-            feedbackDiv.textContent = 'Les mots de passe ne correspondent pas.';
-        }
-    }
+                // Si le champ de confirmation est vide, on ne montre rien
+                if (confirmPassword === '') {
+                    confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
+                    feedbackDiv.innerHTML = '';
+                    return;
+                }
 
-    // On vérifie à chaque fois que l'utilisateur tape dans l'un des deux champs
-    if(passwordInput && confirmPasswordInput) {
-        passwordInput.addEventListener('input', checkPasswordMatch);
-        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
-    }
-});
-</script>
+                // Si les mots de passe correspondent
+                if (password === confirmPassword) {
+                    confirmPasswordInput.classList.remove('is-invalid');
+                    confirmPasswordInput.classList.add('is-valid');
+                    // Utilise les classes de feedback de Bootstrap pour le style
+                    feedbackDiv.className = 'valid-feedback d-block';
+                    feedbackDiv.textContent = 'Les mots de passe correspondent.';
+                } else {
+                    // S'ils ne correspondent pas
+                    confirmPasswordInput.classList.remove('is-valid');
+                    confirmPasswordInput.classList.add('is-invalid');
+                    feedbackDiv.className = 'invalid-feedback d-block';
+                    feedbackDiv.textContent = 'Les mots de passe ne correspondent pas.';
+                }
+            }
+
+            // On vérifie à chaque fois que l'utilisateur tape dans l'un des deux champs
+            if (passwordInput && confirmPasswordInput) {
+                passwordInput.addEventListener('input', checkPasswordMatch);
+                confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            }
+        });
+    </script>
     <!--end wrapper-->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -789,29 +791,31 @@
         });
     </script>
     <script>
-        function handleSubmit(event) {
-            event.preventDefault();
-
-            const form = event.target.closest('form');
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return false;
-            }
-
-            const btnSubmit = document.getElementById('submitBtn');
-            const btnLoading = document.getElementById('btnLoading');
-
-            // Masquer le bouton principal, afficher le bouton loading
-            btnSubmit.classList.add('d-none');
-            btnLoading.classList.remove('d-none');
-
-            // Soumettre après une courte pause
-            setTimeout(() => {
-                form.submit();
-            }, 500);
-
-            return true;
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cible tous les boutons ayant l'attribut data-loader-target
+            document.querySelectorAll('[data-loader-target]').forEach(function(btn) { // Simplification du sélecteur
+                btn.addEventListener('click', function(event) {
+                    const targetId = btn.getAttribute('data-loader-target');
+                    const loaderBtn = document.getElementById(targetId);
+    
+                    if (btn.type === 'submit') {
+                        const form = btn.closest('form');
+                        if (form && !form.checkValidity()) {
+                            // Si le formulaire n'est pas valide, empêche l'action par défaut
+                            event.preventDefault();
+                            event.stopPropagation();
+                            form.classList.add('was-validated'); // Ajoute la classe Bootstrap pour afficher les erreurs
+                            return;
+                        }
+                    }
+    
+                    if (loaderBtn) {
+                        btn.style.display = 'none';
+                        loaderBtn.style.display = 'inline-block';
+                    }
+                });
+            });
+        });
     </script>
     <!--app JS-->
     <script src="{{ asset('assets/js/app.js') }}"></script>

@@ -53,6 +53,16 @@
     </style>
     <div class="page-wrapper">
         <div class="page-content">
+            {{-- Toast notifications (succès/erreur) --}}
+            <div id="notification-toast"
+                class="toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3" role="alert"
+                aria-live="assertive" aria-atomic="true" style="z-index:1056;">
+                <div class="d-flex">
+                    <div class="toast-body"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
             <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
                 <div class="breadcrumb-title pe-3">Services</div>
                 <div class="ps-3">
@@ -74,341 +84,471 @@
                     </button>
                 </div>
             </div>
+            @if (session('success'))
+                <div class="alert alert-success border-0 bg-success alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                        <div class="font-35 text-white"><i class='bx bxs-check-circle'></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-white">{{ session('success') }}</h6>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                        <div class="font-35 text-white"><i class='bx bxs-message-square-x'></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-white">{{ session('error') }}</h6>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 row-cols-xl-4 g-3">
-                <!-- Exemple pour une carte de branche, avec les nouveaux data-* attributs -->
-                <div class="col">
-                    <div class="d-flex align-items-center p-3 shadow-sm rounded cursor-pointer caisse-card bg-light"
-                        role="button" data-id="101" data-name="Caisse Principale" data-branch-id="1"
-                        data-stat-total-agents="4" data-stat-total-agents-trend="+1" data-stat-total-services="12"
-                        data-stat-total-services-trend="+2" data-stat-total-tickets="1,250"
-                        data-stat-total-tickets-trend="+4.1%" data-stat-cancelled-tickets="32"
-                        data-stat-cancelled-tickets-trend="-1.2%" data-stat-favorable-responses="980"
-                        data-stat-favorable-responses-trend="+5.5%" data-stat-unfavorable-responses="45"
-                        data-stat-unfavorable-responses-trend="+0.5%">
 
-                        <div class="font-22 text-primary">
-                            <i class='bx bx-desktop'></i> <!-- Icône changée -->
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-0">Service Principale</h6> <!-- Nom de la Caisse -->
-                            <small class="text-secondary">Agence Paris Centre</small> <!-- Branche parente -->
-                        </div>
-                    </div>
-                </div>
+                @forelse ($services as $service)
+                    <div class="col">
+                        {{-- 
+                            Chaque carte est un bouton qui stocke ses informations uniques dans des attributs "data-*".
+                            - data-bs-toggle et data-bs-target sont des commandes Bootstrap pour ouvrir l'offcanvas.
+                        --}}
+                        <div class="d-flex align-items-center p-3 shadow-sm rounded cursor-pointer service-card bg-light"
+                            role="button" data-bs-toggle="offcanvas" data-bs-target="#serviceDetailOffcanvas"
+                            {{-- Données du service --}} data-id="{{ $service->id }}" data-name="{{ $service->nom }}"
+                            data-branch-name="{{ $service->branche->nom }}" {{-- Données statistiques (ce sont des exemples à remplacer par vos vrais calculs) --}} data-stat-total-agents="5"
+                            data-stat-total-agents-trend="+1" data-stat-total-tickets="1,250"
+                            data-stat-total-tickets-trend="+4.1%" data-stat-cancelled-tickets="32"
+                            data-stat-cancelled-tickets-trend="-1.2%" data-stat-favorable-responses="980"
+                            data-stat-favorable-responses-trend="+5.5%" data-stat-unfavorable-responses="45"
+                            data-stat-unfavorable-responses-trend="+0.5%">
 
-                <!-- Caisse 2 -->
-                <div class="col">
-                    <div class="d-flex align-items-center p-3 shadow-sm rounded cursor-pointer caisse-card bg-light"
-                        role="button" data-id="102" data-name="Caisse Drive" data-branch-id="1" data-stat-total-agents="2"
-                        data-stat-total-agents-trend="0" data-stat-total-services="5" data-stat-total-services-trend="+1"
-                        data-stat-total-tickets="840" data-stat-total-tickets-trend="+2.8%" data-stat-cancelled-tickets="15"
-                        data-stat-cancelled-tickets-trend="+0.9%" data-stat-favorable-responses="710"
-                        data-stat-favorable-responses-trend="+3.1%" data-stat-unfavorable-responses="21"
-                        data-stat-unfavorable-responses-trend="-1.1%">
-
-                        <div class="font-22 text-success">
-                            <i class='bx bx-desktop'></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-0">Service Drive</h6>
-                            <small class="text-secondary">Agence Paris Centre</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Branche 2 -->
-
-                <!-- Offcanvas pour les détails de la CAISSE -->
-                <div class="offcanvas offcanvas-top" tabindex="-1" id="caisseOffcanvas"
-                    aria-labelledby="caisseOffcanvasLabel">
-
-                    <div class="offcanvas-header border-bottom">
-                        <h5 class="offcanvas-title" id="caisseOffcanvasLabel">Détails du service</h5>
-                        <div class="d-flex align-items-center">
-                            <div class="dropdown me-2">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">Aujourd'hui</button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
-                                    <li><a class="dropdown-item" href="#">Hier</a></li>
-                                    <li><a class="dropdown-item" href="#">Semaine</a></li>
-                                    <li><a class="dropdown-item" href="#">Mois</a></li>
-                                    <li><a class="dropdown-item" href="#">Année</a></li>
-                                </ul>
+                            <div class="font-22 text-primary">
+                                <i class='bx bx-desktop'></i>
                             </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                                aria-label="Close"></button>
-                        </div>
-                    </div>
-
-                    <div class="offcanvas-body">
-                        <div class="row">
-                            <!-- COLONNE 1 : FORMULAIRE DE MODIFICATION ET INFOS GÉNÉRALES -->
-                            <div class="col-md-4 border-end">
-                                <!-- Formulaire de modification -->
-                                <h6><i class="bx bx-edit-alt me-1"></i>Modifier le service</h6>
-                                <form id="caisseEditForm">
-                                    <input type="hidden" id="caisseIdInput" name="caisse_id">
-                                    <div class="mb-3">
-                                        <label for="caisseNameInput" class="form-label">Nom de la caisse</label>
-                                        <input type="text" class="form-control" id="caisseNameInput"
-                                            name="caisse_name" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mb-4">Enregistrer</button>
-                                </form>
-
-                                <!-- Infos générales -->
-                                <h6><i class="bx bx-info-circle me-1"></i>Infos Générales</h6>
-                                <div class="row row-cols-1">
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-dark">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Agents assignés</p>
-                                                        <h4 class="my-1 text-dark" id="statTotalAgents">0</h4>
-                                                        <p class="mb-0 font-13" id="statTotalAgentsTrend">+0</p>
-                                                    </div>
-                                                    <div class="widgets-icons-2 rounded-circle bg-dark text-white ms-auto">
-                                                        <i class='bx bxs-group'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-secondary">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Services disponibles</p>
-                                                        <h4 class="my-1 text-secondary" id="statTotalServices">0</h4>
-                                                        <p class="mb-0 font-13" id="statTotalServicesTrend">+0</p>
-                                                    </div>
-                                                    <div
-                                                        class="widgets-icons-2 rounded-circle bg-secondary text-white ms-auto">
-                                                        <i class='bx bxs-briefcase-alt-2'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- COLONNE 2 : STATISTIQUES DES TICKETS -->
-                            <div class="col-md-8">
-                                <h6><i class="bx bx-bar-chart-alt-2 me-1"></i>Activité des Tickets</h6>
-                                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4">
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-success">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Total tickets</p>
-                                                        <h4 class="my-1 text-success" id="statTotalTickets">0</h4>
-                                                        <p class="mb-0 font-13" id="statTotalTicketsTrend">+0.0%</p>
-                                                    </div>
-                                                    <div
-                                                        class="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto">
-                                                        <i class='bx bxs-purchase-tag-alt'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-danger">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Tickets annulés</p>
-                                                        <h4 class="my-1 text-danger" id="statCancelledTickets">0</h4>
-                                                        <p class="mb-0 font-13" id="statCancelledTicketsTrend">+0.0%</p>
-                                                    </div>
-                                                    <div
-                                                        class="widgets-icons-2 rounded-circle bg-gradient-burning text-white ms-auto">
-                                                        <i class='bx bxs-x-circle'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-info">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Réponses OK</p>
-                                                        <h4 class="my-1 text-info" id="statFavorableResponses">0</h4>
-                                                        <p class="mb-0 font-13" id="statFavorableResponsesTrend">+0.0%</p>
-                                                    </div>
-                                                    <div
-                                                        class="widgets-icons-2 rounded-circle bg-gradient-blues text-white ms-auto">
-                                                        <i class='bx bxs-like'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="card radius-10 border-start border-0 border-4 border-warning">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <p class="mb-0 text-secondary">Réponses NOK</p>
-                                                        <h4 class="my-1 text-warning" id="statUnfavorableResponses">0</h4>
-                                                        <p class="mb-0 font-13" id="statUnfavorableResponsesTrend">-0.0%
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        class="widgets-icons-2 rounded-circle bg-gradient-orange text-white ms-auto">
-                                                        <i class='bx bxs-dislike'></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0">{{ $service->nom }}</h6>
+                                <small class="text-secondary">{{ $service->branche->nom }}</small>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- Offcanvas pour l'ajout d'une NOUVELLE CAISSE -->
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="addCaisseOffcanvas"
-                aria-labelledby="addCaisseOffcanvasLabel" data-bs-backdrop="static" data-bs-keyboard="false">
+                @empty
+                    {{-- Ce message s'affiche si la variable $services est vide --}}
+                    <div class="col-12">
+                        <div class="alert alert-info">Aucun service n'a encore été créé pour cette structure.</div>
+                    </div>
+                @endforelse
 
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="addCaisseOffcanvasLabel">Nouveau service</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div> {{-- Fin de la div .row --}}
+
+
+
+            {{-- ========================================================================= --}}
+            {{--   PARTIE 2 : L'OFFCANVAS (Défini UNE SEULE FOIS, HORS de la boucle)       --}}
+            {{-- ========================================================================= --}}
+            <div class="offcanvas offcanvas-top" tabindex="-1" id="serviceDetailOffcanvas"
+                aria-labelledby="serviceDetailOffcanvasLabel">
+
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title" id="serviceDetailOffcanvasLabel">Détails du service</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">Aujourd'hui</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
+                                <li><a class="dropdown-item" href="#">Hier</a></li>
+                                <li><a class="dropdown-item" href="#">Cette semaine</a></li>
+                                <li><a class="dropdown-item" href="#">Ce mois-ci</a></li>
+                                <li><a class="dropdown-item" href="#">Cette année</a></li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
+                    </div>
                 </div>
 
                 <div class="offcanvas-body">
-                    <!-- Formulaire d'enregistrement de la caisse -->
-                    <form id="newCaisseForm">
+                    <div class="row">
+                        <!-- COLONNE 1 : FORMULAIRE ET INFOS -->
+                        <div class="col-md-4 border-end">
+                            <h6><i class="bx bx-edit-alt me-1"></i>Modifier le service</h6>
+                            <form id="serviceEditForm">
+                                <input type="hidden" id="editServiceIdInput" name="service_id">
 
-                        <div class="mb-3">
-                            <label for="newCaisseName" class="form-label">Nom du service<span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control shadow-sm" id="newCaisseName" name="nom"
-                                placeholder="Ex: Caisse Principale, Caisse Drive..." required>
+                                <div class="mb-3">
+                                    <label for="editServiceNameInput" class="form-label">Nom du service</label>
+                                    <input type="text" class="form-control" id="editServiceNameInput"
+                                        name="service_name" required>
+                                    <div class="invalid-feedback" id="edit-service_name-error"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                    <button type="button" class="btn btn-danger"
+                                        id="deleteServiceBtn">Supprimer</button>
+                                </div>
+                            </form>
+
+                            <h6 class="mt-3"><i class="bx bx-info-circle me-1"></i>Infos Générales</h6>
+                            <div class="card radius-10 border-start border-0 border-4 border-dark">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <p class="mb-0 text-secondary">Agents assignés</p>
+                                            <h4 class="my-1 text-dark" id="offcanvasStatTotalAgents">0</h4>
+                                            <p class="mb-0 font-13" id="offcanvasStatTotalAgentsTrend">+0</p>
+                                        </div>
+                                        <div class="widgets-icons-2 rounded-circle bg-dark text-white ms-auto"><i
+                                                class='bx bxs-group'></i></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="caisseBrancheSelect" class="form-label">Branche de rattachement <span
-                                    class="text-danger">*</span></label>
-                            <select class="form-select shadow-sm" id="caisseBrancheSelect" name="branche_id" required>
-                                <option selected disabled value="">Choisir une branche...</option>
-
-                                <!-- Ces options seraient chargées dynamiquement depuis votre base de données -->
-                                <option value="1">Agence Paris Centre</option>
-                                <option value="2">Agence Lyon Part-Dieu</option>
-                                <option value="3">Agence Marseille Port</option>
-                            </select>
+                        <!-- COLONNE 2 : STATS DES TICKETS -->
+                        <div class="col-md-8">
+                            <h6><i class="bx bx-bar-chart-alt-2 me-1"></i>Activité des Tickets</h6>
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4">
+                                <div class="col">
+                                    <div class="card radius-10 border-start border-0 border-4 border-success">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p class="mb-0 text-secondary">Total tickets</p>
+                                                    <h4 class="my-1 text-success" id="offcanvasStatTotalTickets">0</h4>
+                                                    <p class="mb-0 font-13" id="offcanvasStatTotalTicketsTrend">+0.0%</p>
+                                                </div>
+                                                <div
+                                                    class="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto">
+                                                    <i class='bx bxs-purchase-tag-alt'></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card radius-10 border-start border-0 border-4 border-danger">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p class="mb-0 text-secondary">Tickets annulés</p>
+                                                    <h4 class="my-1 text-danger" id="offcanvasStatCancelledTickets">0</h4>
+                                                    <p class="mb-0 font-13" id="offcanvasStatCancelledTicketsTrend">+0.0%
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    class="widgets-icons-2 rounded-circle bg-gradient-burning text-white ms-auto">
+                                                    <i class='bx bxs-x-circle'></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card radius-10 border-start border-0 border-4 border-info">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p class="mb-0 text-secondary">Réponses OK</p>
+                                                    <h4 class="my-1 text-info" id="offcanvasStatFavorableResponses">0</h4>
+                                                    <p class="mb-0 font-13" id="offcanvasStatFavorableResponsesTrend">
+                                                        +0.0%</p>
+                                                </div>
+                                                <div
+                                                    class="widgets-icons-2 rounded-circle bg-gradient-blues text-white ms-auto">
+                                                    <i class='bx bxs-like'></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card radius-10 border-start border-0 border-4 border-warning">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p class="mb-0 text-secondary">Réponses NOK</p>
+                                                    <h4 class="my-1 text-warning" id="offcanvasStatUnfavorableResponses">0
+                                                    </h4>
+                                                    <p class="mb-0 font-13" id="offcanvasStatUnfavorableResponsesTrend">
+                                                        -0.0%</p>
+                                                </div>
+                                                <div
+                                                    class="widgets-icons-2 rounded-circle bg-gradient-orange text-white ms-auto">
+                                                    <i class='bx bxs-dislike'></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Boutons d'action du formulaire -->
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-end">
-                            <button type="button" class="btn btn-secondary me-2 radius-30 shadow"
-                                data-bs-dismiss="offcanvas">Annuler</button>
-                            <button type="submit" class="btn btn-primary radius-30 shadow" id="btnSaveCaisse"><i
-                                    class='bx bx-save me-1'></i>Enregistrer</button>
-                            <button type="button" class="btn btn-primary radius-30 shadow d-none" id="btnLoadingCaisse">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Enregistrement...
-                            </button>
-                        </div>
-
-                    </form>
+                    </div>
                 </div>
             </div>
-
         </div>
-    </div>
+        <!-- Offcanvas pour l'ajout d'une NOUVELLE CAISSE -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="addCaisseOffcanvas"
+            aria-labelledby="addCaisseOffcanvasLabel" data-bs-backdrop="static" data-bs-keyboard="false">
 
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="addCaisseOffcanvasLabel">Nouveau service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body">
+                <!-- Formulaire d'enregistrement de la caisse -->
+                <!-- J'ai renommé le form id en 'newServiceForm' pour plus de clarté -->
+                {{-- Le formulaire pour une soumission classique --}}
+                <form id="newServiceForm" method="POST" action="{{ route('services.store') }}">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="newServiceName" class="form-label">Nom du service<span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control shadow-sm @error('nom') is-invalid @enderror"
+                            id="newServiceName" name="nom" value="{{ old('nom') }}"
+                            placeholder="Ex: Retrait, Dépôt, Conseiller..." required>
+                        @error('nom')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="serviceBrancheSelect" class="form-label">Branche de rattachement <span
+                                class="text-danger">*</span></label>
+                        <select class="form-select shadow-sm @error('branche_id') is-invalid @enderror"
+                            id="serviceBrancheSelect" name="branche_id" required>
+                            <option selected disabled value="">Choisir une branche...</option>
+
+                            {{-- La variable $branches doit être passée à la vue --}}
+                            @foreach ($branches as $branche)
+                                <option value="{{ $branche->id }}" @if (old('branche_id') == $branche->id) selected @endif>
+                                    {{ $branche->nom }} ({{ $branche->structure->nom }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('branche_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="newServiceTemps" class="form-label">Temps moyen estimé (minutes)</label>
+                        <input type="number"
+                            class="form-control shadow-sm @error('temps_moyen_estime') is-invalid @enderror"
+                            id="newServiceTemps" name="temps_moyen_estime" value="{{ old('temps_moyen_estime') }}"
+                            placeholder="Ex: 15" min="1">
+                        @error('temps_moyen_estime')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <!-- Boutons d'action du formulaire -->
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2 radius-30 shadow"
+                            data-bs-dismiss="offcanvas">Annuler</button>
+                        <button type="submit" class="btn btn-primary radius-30 shadow" data-loader-target="service"
+                            id="btnSaveService"><i class='bx bx-save me-1'></i>Enregistrer</button>
+                        <button type="button" class="btn btn-primary radius-30 shadow" id="service"
+                            style="display: none;" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Enregistrement...
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    </div>
+    {{-- ========================================================================= --}}
+    {{--   PARTIE 3 : LE JAVASCRIPT (Gère l'interaction)                         --}}
+    {{-- ========================================================================= --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const serviceDetailOffcanvasElement = document.getElementById('serviceDetailOffcanvas');
+            const notificationToastElement = document.getElementById('notification-toast');
+            const notificationToast = new bootstrap.Toast(notificationToastElement);
 
-            // MISE À JOUR : On cible l'Offcanvas de la caisse
-            const offcanvasElement = document.getElementById('caisseOffcanvas');
-            const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            // --- Helpers
+            function showToast(message, isError = false) {
+                const body = notificationToastElement.querySelector('.toast-body');
+                body.textContent = message;
+                notificationToastElement.classList.toggle('bg-success', !isError);
+                notificationToastElement.classList.toggle('bg-danger', isError);
+                notificationToast.show();
+            }
 
-            // MISE À JOUR : On sélectionne les cartes de caisses
-            const caisseCards = document.querySelectorAll('.caisse-card');
+            function clearValidationErrors(form) {
+                form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+            }
 
-            caisseCards.forEach(card => {
-                card.addEventListener('click', function() {
+            function displayValidationErrors(form, errors) {
+                clearValidationErrors(form);
+                for (const field in errors) {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    const errorDiv = form.querySelector(`#edit-${field}-error`);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        if (errorDiv) errorDiv.textContent = errors[field][0];
+                    }
+                }
+            }
 
-                    // RÉCUPÉRATION DES DONNÉES DE LA CAISSE
-                    const caisseId = this.dataset.id;
-                    const caisseName = this.dataset.name;
+            // --- Remplissage dynamique à l'ouverture
+            if (serviceDetailOffcanvasElement) {
+                serviceDetailOffcanvasElement.addEventListener('show.bs.offcanvas', function(event) {
+                    const serviceCard = event.relatedTarget;
+                    const offcanvas = this;
 
-                    // Récupération des statistiques
-                    const statTotalAgents = this.dataset.statTotalAgents;
-                    const statTotalAgentsTrend = this.dataset.statTotalAgentsTrend;
-                    const statTotalServices = this.dataset.statTotalServices;
-                    const statTotalServicesTrend = this.dataset.statTotalServicesTrend;
-                    const totalTickets = this.dataset.statTotalTickets;
-                    const totalTicketsTrend = this.dataset.statTotalTicketsTrend;
-                    const cancelledTickets = this.dataset.statCancelledTickets;
-                    const cancelledTicketsTrend = this.dataset.statCancelledTicketsTrend;
-                    const favorableResponses = this.dataset.statFavorableResponses;
-                    const favorableResponsesTrend = this.dataset.statFavorableResponsesTrend;
-                    const unfavorableResponses = this.dataset.statUnfavorableResponses;
-                    const unfavorableResponsesTrend = this.dataset.statUnfavorableResponsesTrend;
+                    clearValidationErrors(offcanvas.querySelector('#serviceEditForm'));
 
-                    // MISE À JOUR DU FORMULAIRE
-                    document.getElementById('caisseIdInput').value = caisseId;
-                    document.getElementById('caisseNameInput').value = caisseName;
+                    // Titre + formulaire
+                    offcanvas.querySelector('#serviceDetailOffcanvasLabel').textContent =
+                        `Détails : ${serviceCard.dataset.name} (${serviceCard.dataset.branchName})`;
 
-                    // MISE À JOUR DE L'AFFICHAGE
-                    document.getElementById('caisseOffcanvasLabel').textContent =
-                        `Détails de : ${caisseName}`;
+                    offcanvas.querySelector('#editServiceIdInput').value = serviceCard.dataset.id;
+                    offcanvas.querySelector('#editServiceNameInput').value = serviceCard.dataset.name || '';
 
-                    // Mise à jour des stats Agents et Services
-                    document.getElementById('statTotalAgents').textContent = statTotalAgents;
-                    document.getElementById('statTotalAgentsTrend').textContent =
-                        statTotalAgentsTrend;
-                    document.getElementById('statTotalServices').textContent = statTotalServices;
-                    document.getElementById('statTotalServicesTrend').textContent =
-                        statTotalServicesTrend;
-
-                    // Mise à jour des stats Tickets
-                    document.getElementById('statTotalTickets').textContent = totalTickets;
-                    document.getElementById('statTotalTicketsTrend').textContent =
-                        totalTicketsTrend;
-                    document.getElementById('statCancelledTickets').textContent = cancelledTickets;
-                    document.getElementById('statCancelledTicketsTrend').textContent =
-                        cancelledTicketsTrend;
-                    document.getElementById('statFavorableResponses').textContent =
-                        favorableResponses;
-                    document.getElementById('statFavorableResponsesTrend').textContent =
-                        favorableResponsesTrend;
-                    document.getElementById('statUnfavorableResponses').textContent =
-                        unfavorableResponses;
-                    document.getElementById('statUnfavorableResponsesTrend').textContent =
-                        unfavorableResponsesTrend;
-
-                    bsOffcanvas.show();
+                    // Stats
+                    offcanvas.querySelector('#offcanvasStatTotalAgents').textContent = serviceCard.dataset
+                        .statTotalAgents || '0';
+                    offcanvas.querySelector('#offcanvasStatTotalAgentsTrend').textContent = serviceCard
+                        .dataset.statTotalAgentsTrend || '+0';
+                    offcanvas.querySelector('#offcanvasStatTotalTickets').textContent = serviceCard.dataset
+                        .statTotalTickets || '0';
+                    offcanvas.querySelector('#offcanvasStatTotalTicketsTrend').textContent = serviceCard
+                        .dataset.statTotalTicketsTrend || '+0.0%';
+                    offcanvas.querySelector('#offcanvasStatCancelledTickets').textContent = serviceCard
+                        .dataset.statCancelledTickets || '0';
+                    offcanvas.querySelector('#offcanvasStatCancelledTicketsTrend').textContent = serviceCard
+                        .dataset.statCancelledTicketsTrend || '+0.0%';
+                    offcanvas.querySelector('#offcanvasStatFavorableResponses').textContent = serviceCard
+                        .dataset.statFavorableResponses || '0';
+                    offcanvas.querySelector('#offcanvasStatFavorableResponsesTrend').textContent =
+                        serviceCard.dataset.statFavorableResponsesTrend || '+0.0%';
+                    offcanvas.querySelector('#offcanvasStatUnfavorableResponses').textContent = serviceCard
+                        .dataset.statUnfavorableResponses || '0';
+                    offcanvas.querySelector('#offcanvasStatUnfavorableResponsesTrend').textContent =
+                        serviceCard.dataset.statUnfavorableResponsesTrend || '-0.0%';
                 });
-            });
+            }
 
-            // Gérer la soumission du formulaire de modification de la caisse
-            const editForm = document.getElementById('caisseEditForm');
-            editForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const formData = new FormData(editForm);
+            // --- PATCH (édition)
+            const editForm = document.getElementById('serviceEditForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
 
-                console.log('Formulaire soumis pour la caisse ID:', formData.get('caisse_id'));
-                console.log('Nouveau nom:', formData.get('caisse_name'));
+                    const serviceId = document.getElementById('editServiceIdInput').value;
+                    const formData = new FormData(editForm);
+                    const data = Object.fromEntries(formData.entries());
 
-                alert(
-                    `Modifications pour la caisse ${formData.get('caisse_name')} enregistrées (simulation) !`
-                    );
-                bsOffcanvas.hide();
-            });
+                    const submitBtn = editForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+
+                    fetch(`/services/${serviceId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                service_name: data.service_name
+                                // Ajoute ici d'autres champs si tu en as (ex: temps_moyen_estime)
+                            })
+                        })
+                        .then(r => r.json().then(body => ({
+                            status: r.status,
+                            body
+                        })))
+                        .then(({
+                            status,
+                            body
+                        }) => {
+                            if (status === 200) {
+                                showToast(body.message || 'Service modifié avec succès.');
+                                // MAJ du nom sur la carte
+                                const cardName = document.querySelector(
+                                    `#service-card-${serviceId} .service-name-display`);
+                                // Ou fallback: cherche la carte avec [data-id="..."]
+                                if (!cardName) {
+                                    const card = document.querySelector(
+                                        `.service-card[data-id="${serviceId}"]`);
+                                    if (card) {
+                                        const title = card.querySelector('h6');
+                                        if (title && body.service?.nom) title.textContent = body.service
+                                            .nom;
+                                    }
+                                } else if (body.service?.nom) {
+                                    cardName.textContent = body.service.nom;
+                                }
+                                // Fermer
+                                bootstrap.Offcanvas.getInstance(serviceDetailOffcanvasElement).hide();
+                            } else if (status === 422) {
+                                displayValidationErrors(editForm, body.errors);
+                            } else {
+                                showToast(body.message || 'Une erreur est survenue.', true);
+                            }
+                        })
+                        .catch(() => showToast('Erreur de connexion.', true))
+                        .finally(() => {
+                            submitBtn.disabled = false;
+                        });
+                });
+            }
+
+            // --- DELETE (suppression)
+            const deleteBtn = document.getElementById('deleteServiceBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    const serviceId = document.getElementById('editServiceIdInput').value;
+                    const serviceName = document.getElementById('editServiceNameInput').value;
+
+                    if (!serviceId) return;
+
+                    if (confirm(`Supprimer le service "${serviceName}" ? Cette action est irréversible.`)) {
+                        fetch(`/services/${serviceId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            })
+                            .then(r => r.json().then(body => ({
+                                status: r.status,
+                                body
+                            })))
+                            .then(({
+                                status,
+                                body
+                            }) => {
+                                if (status === 200) {
+                                    showToast(body.message || 'Service supprimé avec succès.');
+                                    // Retire la carte du DOM
+                                    const cardWrapper = document.querySelector(
+                                            `.col #service-card-${serviceId}`) ||
+                                        document.querySelector(`.service-card[data-id="${serviceId}"]`)
+                                        ?.closest('.col');
+                                    if (cardWrapper) cardWrapper.remove();
+
+                                    bootstrap.Offcanvas.getInstance(serviceDetailOffcanvasElement)
+                                    .hide();
+                                } else if (status === 409) {
+                                    showToast(body.message || 'Suppression impossible : éléments liés.',
+                                        true);
+                                } else {
+                                    showToast(body.message || 'Une erreur est survenue.', true);
+                                }
+                            })
+                            .catch(() => showToast('Erreur de connexion.', true));
+                    }
+                });
+            }
         });
     </script>
+
 @endsection

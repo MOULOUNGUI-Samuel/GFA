@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 
 <!-- Mirrored from codervent.com/rocker/demo/vertical/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 02 Jul 2025 22:52:56 GMT -->
@@ -8,26 +8,37 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--favicon-->
+    
+    <!-- Favicon -->
     <link rel="icon" href="{{ asset('assets/images/favicon-32x32.png') }}" type="image/png" />
-    <!--plugins-->
+    
+    <!-- Plugins CSS -->
     <link href="{{ asset('assets/plugins/vectormap/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
-    <!-- loader-->
+    <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    
+    <!-- Loader -->
     <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('assets/js/pace.min.js') }}"></script>
+    
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/bootstrap-extended.css') }}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- App CSS -->
     <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
-    <!-- Theme Style CSS -->
+    
+    <!-- Theme Styles -->
     <link rel="stylesheet" href="{{ asset('assets/css/dark-theme.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/semi-dark.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/header-colors.css') }}" />
+    
 	<meta name="csrf-token" content="{{ csrf_token() }}">
     <title>
         @yield('title', 'Mon Tableau de bord')
@@ -58,7 +69,7 @@
             <ul class="metismenu" id="menu">
 
                 <!-- Tableau de Bord (lien principal) -->
-                <li class="@if (request()->routeIs('dashboard')) active @endif">
+                <li>
                     <a href="{{ route('dashboard') }}">
                         <div class="parent-icon"><i class='bx bx-home-alt'></i></div>
                         <div class="menu-title">Tableau de Bord</div>
@@ -68,7 +79,7 @@
                 <li class="menu-label">OPÉRATIONS COURANTES</li>
 
                 <!-- Gestion des Caisses -->
-                <li class="@if (request()->routeIs('caisse.index')) active @endif">
+                <li class="">
                     <a href="{{ route('caisse.index') }}">
                         <div class="parent-icon"><i class='bx bx-dollar-circle'></i></div>
                         <div class="menu-title">Caisses</div>
@@ -95,7 +106,7 @@
 
                 <!-- Gestion des Agents -->
                 <li>
-                    <a href="#">
+                    <a href="{{route('agent.index')}}">
                         <div class="parent-icon"><i class="bx bx-group"></i></div>
                         <div class="menu-title">Agents</div>
                     </a>
@@ -408,17 +419,21 @@
                             <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i
                                         class="bx bx-user fs-5"></i><span>Profile</span></a>
                             </li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i
-                                        class="bx bx-dollar-circle fs-5"></i><span>Earnings</span></a>
-                            </li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i
-                                        class="bx bx-download fs-5"></i><span>Downloads</span></a>
-                            </li>
                             <li>
                                 <div class="dropdown-divider mb-0"></div>
                             </li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i
-                                        class="bx bx-log-out-circle"></i><span>Logout</span></a>
+                            <li>
+                                <!-- 1. On crée un formulaire qui pointe vers la route de déconnexion -->
+                                <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                                    @csrf
+                                </form>
+                                
+                                <!-- 2. Votre lien ne soumet plus, il déclenche le formulaire via JavaScript -->
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route('logout') }}" 
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bx bx-log-out-circle"></i>
+                                    <span>Déconnexion</span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -440,7 +455,33 @@
         </footer>
     </div>
     <!--end wrapper-->
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cible tous les boutons ayant l'attribut data-loader-target
+            document.querySelectorAll('[data-loader-target]').forEach(function(btn) { // Simplification du sélecteur
+                btn.addEventListener('click', function(event) {
+                    const targetId = btn.getAttribute('data-loader-target');
+                    const loaderBtn = document.getElementById(targetId);
+    
+                    if (btn.type === 'submit') {
+                        const form = btn.closest('form');
+                        if (form && !form.checkValidity()) {
+                            // Si le formulaire n'est pas valide, empêche l'action par défaut
+                            event.preventDefault();
+                            event.stopPropagation();
+                            form.classList.add('was-validated'); // Ajoute la classe Bootstrap pour afficher les erreurs
+                            return;
+                        }
+                    }
+    
+                    if (loaderBtn) {
+                        btn.style.display = 'none';
+                        loaderBtn.style.display = 'inline-block';
+                    }
+                });
+            });
+        });
+    </script>
     <!--end switcher-->
     <!-- Bootstrap JS -->
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
@@ -453,6 +494,25 @@
     <script src="{{ asset('assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ asset('assets/plugins/chartjs/js/chart.js') }}"></script>
     <script src="{{ asset('assets/js/index.js') }}"></script>
+
+	<script src="{{asset('assets/plugins/datatable/js/jquery.dataTables.min.js')}}"></script>
+	<script src="{{asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js')}}"></script>
+	<script>
+		$(document).ready(function() {
+			$('#example').DataTable();
+		  } );
+	</script>
+	<script>
+		$(document).ready(function() {
+			var table = $('#example2').DataTable( {
+				lengthChange: false,
+				buttons: [ 'copy', 'excel', 'pdf', 'print']
+			} );
+		 
+			table.buttons().container()
+				.appendTo( '#example2_wrapper .col-md-6:eq(0)' );
+		} );
+	</script>
     <!--app JS-->
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>

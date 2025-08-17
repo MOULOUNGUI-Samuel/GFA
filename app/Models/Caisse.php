@@ -13,6 +13,7 @@ class Caisse extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'branche_id',
         'nom',
         'numero_poste',
         'statut',

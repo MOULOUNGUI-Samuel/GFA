@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VerifyOTPController; // Ensure this controller exists in the specified namespace
 use App\Http\Controllers\BranchesController; // Ensure this controller exists in the specified namespace
@@ -39,13 +40,34 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     Route::get('/caisses', [CaissesController::class, 'index'])->name('caisse.index');
+    Route::get('/agents', [AgentController::class, 'index'])->name('agent.index');
+    // Création d’une caisse
+    Route::post('/caisses', [CaissesController::class, 'store'])->name('caisses.store');
+
+    // Mise à jour d’une caisse (AJAX, PATCH/PUT)
+    Route::patch('/caisses/{caisse}', [CaissesController::class, 'update'])->name('caisses.update');
+    Route::put('/caisses/{caisse}', [CaissesController::class, 'update']); // optionnel si tu veux aussi accepter PUT
+
+    // Suppression d’une caisse (AJAX)
+    Route::delete('/caisses/{caisse}', [CaissesController::class, 'destroy'])->name('caisses.destroy');
+
+
     Route::get('/branches', [BranchesController::class, 'index'])->name('branche.index');
-// Le nom {structure} est crucial. S'il s'appelle {id} ou {structure_id}, ça ne marchera pas.
-Route::post('/structures/{structure}/branches', [BranchesController::class, 'store'])->name('branches.store');
+    // Le nom {structure} est crucial. S'il s'appelle {id} ou {structure_id}, ça ne marchera pas.
+    Route::post('/structures/{structure}/branches', [BranchesController::class, 'store'])->name('branches.store');
+    // Modification (update via AJAX ou formulaire)
+    Route::patch('/branches/{branche}', [BranchesController::class, 'update'])->name('branches.update');
+    Route::put('/branches/{branche}', [BranchesController::class, 'update']); // optionnel
+    // Suppression (via AJAX ou bouton)
+    Route::delete('/branches/{branche}', [BranchesController::class, 'destroy'])->name('branches.destroy');
+
+
     Route::get('/services', [ServicesController::class, 'index'])->name('service.index');
-    
+    Route::post('/services', [ServicesController::class, 'store'])->name('services.store');
+    Route::patch('/services/{service}', [ServicesController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [ServicesController::class, 'destroy'])->name('services.destroy');
 });
 
 require __DIR__ . '/auth.php';

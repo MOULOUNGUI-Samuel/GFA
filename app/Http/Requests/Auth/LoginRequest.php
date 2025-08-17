@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Models\User;
+use App\Models\Structure; // <-- Importer le modèle Structure
+use App\Models\User;      // <-- Importer le modèle User
 
 class LoginRequest extends FormRequest
 {
@@ -29,7 +30,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string'], // Accepts either email or username
+            'codeEntreprise' => ['required', 'string'],
+            'identifiant' => ['required', 'string'], // Champ 'email' renommé en 'identifiant'
             'password' => ['required', 'string'],
         ];
     }
@@ -43,57 +45,53 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $identifiant = $this->input('email');
+        $structureSlug = $this->input('codeEntreprise');
+        $identifier = $this->input('identifiant');
         $password = $this->input('password');
 
-        // Vérification de l'existence des champs requis
-        if (empty($identifiant)) {
+        // --- ÉTAPE 1 : Trouver la structure ---
+        // On vérifie d'abord si la structure demandée existe.
+        $structure = Structure::where('slug', $structureSlug)->first();
+
+        if (!$structure) {
+            RateLimiter::hit($this->throttleKey());
+            // On lève une erreur sur le champ du code pour guider l'utilisateur.
             throw ValidationException::withMessages([
-            'email' => 'Le champ identifiant est requis. Veuillez fournir votre email, numéro de téléphone ou nom d’utilisateur.',
+                'codeEntreprise' => 'Ce code structure est invalide.',
             ]);
         }
 
-        if (empty($password)) {
-            throw ValidationException::withMessages([
-            'password' => 'Le champ mot de passe est requis. Veuillez fournir votre mot de passe.',
-            ]);
-        }
+        // --- ÉTAPE 2 : Trouver l'utilisateur ---
+        // On cherche l'utilisateur par son email OU son nom d'utilisateur.
+        $user = User::where('email', $identifier)
+                    ->orWhere('username', $identifier)
+                    ->first();
 
-        // On cherche l'utilisateur en vérifiant dans les 3 colonnes possibles.
-        $user = User::where('email', $identifiant)
-            ->orWhere('phone_number', $identifiant)
-            ->orWhere('username', $identifiant)
-            ->first();
-
-        // ----------------------------------------------------
-        //        NOUVELLE LOGIQUE DE GESTION D'ERREUR
-        // ----------------------------------------------------
-
-        // Cas 1 : L'identifiant n'existe pas du tout.
-        if (! $user) {
+        // --- ÉTAPE 3 : Vérifier le mot de passe ET l'appartenance à la structure ---
+        // On vérifie trois conditions en une seule fois pour une sécurité maximale :
+        // 1. L'utilisateur existe-t-il ?
+        // 2. Le mot de passe est-il correct ?
+        // 3. L'utilisateur trouvé appartient-il bien à la structure trouvée ?
+        if (!$user || !Hash::check($password, $user->password) || !$user->structures()->where('structure_id', $structure->id)->exists()) {
             RateLimiter::hit($this->throttleKey());
 
+            // On renvoie un message d'erreur générique pour ne pas donner d'indices
+            // à un attaquant potentiel (ex: "l'utilisateur existe mais n'est pas dans la bonne structure").
             throw ValidationException::withMessages([
-                'identifiant' => "Aucun compte n'est associé à cet identifiant ! Veuillez vérifier votre numéro de téléphone, email ou nom d'utilisateur.",
+                'identifiant' => 'Les informations fournies (identifiant ou mot de passe) sont incorrectes.',
             ]);
         }
 
-        // Cas 2 : L'identifiant existe, mais le mot de passe est incorrect.
-        if (! Hash::check($password, $user->password)) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                // On met l'erreur sur le champ 'password' pour une meilleure UX.
-                // L'utilisateur saura que c'est le mot de passe qu'il doit corriger.
-                'password' => 'Le mot de passe que vous avez saisi est incorrect.',
-            ]);
-        }
-
-        // Si tout est correct, on connecte l'utilisateur.
+        // --- SUCCÈS ---
+        session()->put('structure_nom', $structure->nom);
+        session()->put('structure_logo', $structure->logo_url);
+        session()->put('structure_id', $structure->id);
+        // Si toutes les vérifications passent, on connecte l'utilisateur.
         Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }
+
 
     /**
      * Ensure the login request is not rate limited.

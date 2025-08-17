@@ -77,9 +77,12 @@ class RegisteredUserController extends Controller
                 // 4. Lier l'utilisateur à la structure (table pivot)
                 $user->structures()->attach($structure->id);
                 
+                session()->put('structure_nom', $structure->nom);
+                session()->put('structure_logo', $structure->logo_url);
+                session()->put('structure_id', $structure->id);
                 return ['user' => $user];
+                
             });
-
             // 5. Connecter l'utilisateur après une inscription réussie
             Auth::login($createdData['user']);
 
