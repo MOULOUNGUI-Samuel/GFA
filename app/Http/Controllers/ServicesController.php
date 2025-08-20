@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreServiceRequest; // La validation reste la même
 use App\Models\Service;
 use Illuminate\Http\RedirectResponse; // <-- Changer le type de retour
-
+use Illuminate\Validation\ValidationException; // Importer pour l'erreur de validation
 class ServicesController extends Controller
 {
     /**
@@ -48,33 +48,66 @@ class ServicesController extends Controller
      */
     public function store(StoreServiceRequest $request): RedirectResponse
     {
+        // La validation de base (nom, branche_id) est déjà faite par StoreServiceRequest
+        $validatedData = $request->validated();
+        
         // try {
-            $branch = Branche::findOrFail($request->input('branche_id'));
-        
-            // Vérifier si un service existe déjà dans cette branche avec le même nom
-            $exists = $branch->services()
-                ->where('nom', $request->input('nom'))
-                ->exists();
-        
-            if ($exists) {
-                return redirect()->back()->with('error', 'Un service avec ce nom existe déjà dans cette branche.');
+            $branch = Branche::findOrFail($validatedData['branche_id']);
+            $serviceName = $validatedData['nom'];
+
+            // --- NOUVELLE LOGIQUE DE GÉNÉRATION DE PRÉFIXE UNIQUE ---
+            
+            // 1. Récupérer tous les préfixes déjà utilisés POUR CETTE BRANCHE
+            $existingPrefixes = Service::where('branche_id', $branch->id)
+                                       ->pluck('prefixe_ticket')
+                                       ->all();
+
+            $prefix = null;
+            $normalizedName = strtoupper(str_replace(' ', '', $serviceName)); // Met en majuscule et enlève les espaces
+            
+
+            // 2. Essayer chaque lettre du nom du service
+            foreach (str_split($normalizedName) as $char) {
+                if (!in_array($char, $existingPrefixes)) {
+                    $prefix = $char;
+                    break; // On a trouvé un préfixe, on arrête la boucle
+                }
             }
-        
-            // Sinon, on crée le service
+            
+            // 3. Si toutes les lettres du nom sont prises, on parcourt l'alphabet
+            if (is_null($prefix)) {
+                $alphabet = range('A', 'Z');
+                foreach ($alphabet as $char) {
+                    if (!in_array($char, $existingPrefixes)) {
+                        $prefix = $char;
+                        break;
+                    }
+                }
+            }
+
+            // 4. Cas extrême : si tous les préfixes de A à Z sont pris, on renvoie une erreur.
+            if (is_null($prefix)) {
+                throw ValidationException::withMessages([
+                    'nom' => 'Impossible de générer un préfixe unique pour ce service dans cette branche. Veuillez choisir un autre nom ou libérer un préfixe.'
+                ]);
+            }
+            
+            // --- FIN DE LA LOGIQUE ---
+
             $branch->services()->create([
-                'nom' => $request->input('nom'),
-                'prefixe_ticket' => strtoupper(substr($request->input('nom'), 0, 1)),
-                'temps_moyen_estime' => $request->input('temps_moyen_estime', 10),
+                'nom' => $serviceName,
+                'prefixe_ticket' => $prefix, // On utilise notre préfixe unique
+                'temps_moyen_estime' => $validatedData['temps_moyen_estime'] ?? 10,
                 'est_actif' => true,
                 'ordre_affichage' => 0,
             ]);
-        
+
             return redirect()->back()->with('success', 'Le service a été créé avec succès !');
-        
+
         // } catch (\Exception $e) {
-        //     return redirect()->back()->with('error', 'Une erreur est survenue lors de la création du service.');
+        //     // Gère l'erreur de validation ou toute autre exception
+        //     return redirect()->back()->with('error', $e instanceof ValidationException ? $e->getMessage() : 'Une erreur est survenue lors de la création du service.');
         // }
-        
     }
 
     /**
