@@ -48,7 +48,7 @@ class ServicesController extends Controller
      */
     public function store(StoreServiceRequest $request): RedirectResponse
     {
-        try {
+        // try {
             $branch = Branche::findOrFail($request->input('branche_id'));
         
             // Vérifier si un service existe déjà dans cette branche avec le même nom
@@ -71,9 +71,9 @@ class ServicesController extends Controller
         
             return redirect()->back()->with('success', 'Le service a été créé avec succès !');
         
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Une erreur est survenue lors de la création du service.');
-        }
+        // } catch (\Exception $e) {
+        //     return redirect()->back()->with('error', 'Une erreur est survenue lors de la création du service.');
+        // }
         
     }
 
