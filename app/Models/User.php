@@ -29,9 +29,7 @@ class User extends Authenticatable
         'phone_number',
         'photo_profil_path',
         'statut_actuel',
-        'caisse_actuelle_id',
         'google_id',
-        'facebook_id', // Ajout de l'ID Facebook
         'password',
     ];
 

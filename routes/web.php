@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/agents', [AgentController::class, 'index'])->name('agent.index');
     // Création d’une caisse
     Route::post('/caisses', [CaissesController::class, 'store'])->name('caisses.store');
+    Route::post('/agents-create', [AgentController::class, 'store'])->name('agents.store');
 
     // Mise à jour d’une caisse (AJAX, PATCH/PUT)
     Route::patch('/caisses/{caisse}', [CaissesController::class, 'update'])->name('caisses.update');

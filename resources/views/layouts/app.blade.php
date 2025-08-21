@@ -27,6 +27,9 @@
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/bootstrap-extended.css') }}" rel="stylesheet">
     
+    <link href="{{asset('assets/plugins/fancy-file-uploader/fancy_fileupload.css')}}" rel="stylesheet" />
+	<link href="{{asset('assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css')}}" rel="stylesheet" />
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     
@@ -43,6 +46,7 @@
     <title>
         @yield('title', 'Mon Tableau de bord')
     </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
@@ -70,7 +74,7 @@
 
                 <!-- Tableau de Bord (lien principal) -->
                 <li>
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('dashboard') }}" class="@if (request()->routeIs('dashboard')) border border-primary shadow text-primary @endif">
                         <div class="parent-icon"><i class='bx bx-home-alt'></i></div>
                         <div class="menu-title">Tableau de Bord</div>
                     </a>
@@ -79,8 +83,8 @@
                 <li class="menu-label">OPÉRATIONS COURANTES</li>
 
                 <!-- Gestion des Caisses -->
-                <li class="">
-                    <a href="{{ route('caisse.index') }}">
+                <li >
+                    <a href="{{ route('caisse.index') }}" class="@if (request()->routeIs('caisse.index')) border border-primary shadow text-primary @endif">
                         <div class="parent-icon"><i class='bx bx-dollar-circle'></i></div>
                         <div class="menu-title">Caisses</div>
                     </a>
@@ -97,8 +101,8 @@
                 <li class="menu-label">PILOTAGE & GESTION</li>
 
                 <!-- Gestion des Branches / Agences -->
-                <li class="@if (request()->routeIs('branche.index')) active @endif">
-                    <a href="{{ route('branche.index') }}">
+                <li>
+                    <a href="{{ route('branche.index') }}" class="@if (request()->routeIs('branche.index')) border border-primary shadow text-primary @endif">
                         <div class="parent-icon"><i class="bx bx-buildings"></i></div>
                         <div class="menu-title">Branches</div>
                     </a>
@@ -106,15 +110,15 @@
 
                 <!-- Gestion des Agents -->
                 <li>
-                    <a href="{{route('agent.index')}}">
+                    <a href="{{route('agent.index')}}" class="@if (request()->routeIs('agent.index')) border border-primary shadow text-primary @endif">
                         <div class="parent-icon"><i class="bx bx-group"></i></div>
                         <div class="menu-title">Agents</div>
                     </a>
                 </li>
 
                 <!-- Gestion des Services -->
-                <li class="@if (request()->routeIs('service.index')) active @endif">
-                    <a href="{{ route('service.index') }}">
+                <li>
+                    <a href="{{ route('service.index') }}" class="@if (request()->routeIs('service.index')) border border-primary shadow text-primary @endif">
                         <div class="parent-icon"><i class='bx bx-briefcase-alt-2'></i></div>
                         <div class="menu-title">Services</div>
                     </a>
@@ -494,6 +498,12 @@
     <script src="{{ asset('assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ asset('assets/plugins/chartjs/js/chart.js') }}"></script>
     <script src="{{ asset('assets/js/index.js') }}"></script>
+
+    <script src="{{asset('assets/plugins/fancy-file-uploader/jquery.ui.widget.js')}}"></script>
+	<script src="{{asset('assets/plugins/fancy-file-uploader/jquery.fileupload.js')}}"></script>
+	<script src="{{asset('assets/plugins/fancy-file-uploader/jquery.iframe-transport.js')}}"></script>
+	<script src="{{asset('assets/plugins/fancy-file-uploader/jquery.fancy-fileupload.js')}}"></script>
+	<script src="{{asset('assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js')}}"></script>
 
 	<script src="{{asset('assets/plugins/datatable/js/jquery.dataTables.min.js')}}"></script>
 	<script src="{{asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js')}}"></script>

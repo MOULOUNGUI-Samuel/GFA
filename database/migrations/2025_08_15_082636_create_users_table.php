@@ -15,13 +15,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('role_id')->constrained('roles');
             $table->string('name');
-            // J'ai ajouté l'index unique sur username, c'est important
             $table->string('username')->unique()->nullable(); 
             $table->string('email')->unique()->nullable();
             $table->string('phone_number')->unique()->nullable();
             $table->string('photo_profil_path')->nullable();
             $table->enum('statut_actuel', ['disponible', 'en_pause', 'en_service', 'deconnecte'])->default('deconnecte');
-            $table->foreignUuid('caisse_actuelle_id')->nullable()->constrained('caisses')->nullOnDelete();
             $table->string('google_id')->unique()->nullable();
             $table->string('password')->nullable();
             $table->timestamp('email_verified_at')->nullable();
