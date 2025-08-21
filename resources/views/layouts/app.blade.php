@@ -79,25 +79,6 @@
                         <div class="menu-title">Tableau de Bord</div>
                     </a>
                 </li>
-
-                <li class="menu-label">OPÉRATIONS COURANTES</li>
-
-                <!-- Gestion des Caisses -->
-                <li >
-                    <a href="{{ route('caisse.index') }}" class="@if (request()->routeIs('caisse.index')) border border-primary shadow text-primary @endif">
-                        <div class="parent-icon"><i class='bx bx-dollar-circle'></i></div>
-                        <div class="menu-title">Caisses</div>
-                    </a>
-                </li>
-
-                <!-- Gestion des Clients -->
-                {{-- <li>
-                    <a href="#">
-                        <div class="parent-icon"><i class='bx bx-user-circle'></i></div>
-                        <div class="menu-title">Clients</div>
-                    </a>
-                </li> --}}
-
                 <li class="menu-label">PILOTAGE & GESTION</li>
 
                 <!-- Gestion des Branches / Agences -->
@@ -107,7 +88,19 @@
                         <div class="menu-title">Branches</div>
                     </a>
                 </li>
-
+                <!-- Gestion des Services -->
+                <li>
+                    <a href="{{ route('service.index') }}" class="@if (request()->routeIs('service.index')) border border-primary shadow text-primary @endif">
+                        <div class="parent-icon"><i class='bx bx-briefcase-alt-2'></i></div>
+                        <div class="menu-title">Services</div>
+                    </a>
+                </li>
+                <li >
+                    <a href="{{ route('caisse.index') }}" class="@if (request()->routeIs('caisse.index')) border border-primary shadow text-primary @endif">
+                        <div class="parent-icon"><i class='bx bx-dollar-circle'></i></div>
+                        <div class="menu-title">Caisses</div>
+                    </a>
+                </li>
                 <!-- Gestion des Agents -->
                 <li>
                     <a href="{{route('agent.index')}}" class="@if (request()->routeIs('agent.index')) border border-primary shadow text-primary @endif">
@@ -116,13 +109,7 @@
                     </a>
                 </li>
 
-                <!-- Gestion des Services -->
-                <li>
-                    <a href="{{ route('service.index') }}" class="@if (request()->routeIs('service.index')) border border-primary shadow text-primary @endif">
-                        <div class="parent-icon"><i class='bx bx-briefcase-alt-2'></i></div>
-                        <div class="menu-title">Services</div>
-                    </a>
-                </li>
+                
 
                 <li class="menu-label">ANALYSE & CONFIGURATION</li>
 
